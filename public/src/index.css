@@ -1,0 +1,61 @@
+.dashboard-table .p-datatable-scrollable {
+    overflow-x: scroll;
+}
+
+.dashboard-table .p-datatable-wrapper {
+    height: 370px;
+    width: 100%
+}
+
+.dashboard-table .p-paginator {
+    border-width: 0 !important;
+}
+
+.dashboard-table .p-paginator-page {
+    font-size: 12px;
+}
+
+.dashboard-table .p-datatable-tbody td,
+.dashboard-table .p-datatable-thead th {
+    white-space: nowrap;
+    padding: 8px 20px !important;
+    font-size: 12px;
+}
+
+.dashboard-column .p-inputtext {
+    height: 1.5rem;
+    font-size: 12px;
+    padding: 4px;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 0;
+}
+
+.p-column-filter-row .p-column-filter-clear-button {
+    display: none;
+}
+
+.p-input-icon-left, .p-input-icon-right {
+    width: 100%;
+}
+
+.p-input-icon-left > .p-inputtext {
+    font-size: 12px;
+    width: 100%;
+    border: none;
+    padding: 10px;
+}
+
+.p-inputtext:enabled:focus {
+    box-shadow: none !important;
+}
+
+.p-paginator {
+    justify-content: right !important;
+}
+
+.p-paginator .p-paginator-first, .p-paginator .p-paginator-prev, .p-paginator .p-paginator-next, .p-paginator .p-paginator-last,
+.p-paginator .p-paginator-pages .p-paginator-page{
+    min-width: 1rem !important;
+    height: 1rem !important;
+}
