@@ -1,23 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     AppBar,
-    InputBase,
     Toolbar,
     Typography,
-    alpha,
-    styled,
     Select,
     MenuItem
 } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setTableSelected } from '../features/tpchSlice';
+import { setTableSelected, clearSelectedCellData } from '../features/tpchSlice';
 
 const drawerWidth = 240;
 
 const HeaderLinks = ({ header }) => {
     const dispatch = useDispatch();
     const { tables, tableSelected } = useSelector((state) => state.tpch);
+
+    const setSelectedTable = (event) => {
+        dispatch(clearSelectedCellData());
+        dispatch(setTableSelected(event.target.value));
+    };
 
     return (
         <AppBar position="absolute"
@@ -40,7 +42,7 @@ const HeaderLinks = ({ header }) => {
                         height: '5ch'
                     }}
                     value={tableSelected}
-                    onChange={(event) => dispatch(setTableSelected(event.target.value))}
+                    onChange={setSelectedTable}
                     >
                         {tables.map((value) => {
                             return (<MenuItem key={value} value={value}>{value}</MenuItem>)
