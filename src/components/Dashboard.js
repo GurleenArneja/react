@@ -9,10 +9,12 @@ import {
 } from "@mui/material";
 import Table from './Table';
 import Queries from './Queries';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setTableSelected, setSelectedCellData } from '../features/tpchSlice';
 
 const Dashboard = () => {
-  const { tableSelected } = useSelector((state) => state.tpch);
+  const dispatch = useDispatch();
+  const { tableSelected, selectedCellData } = useSelector((state) => state.tpch);
   const { orders } = useSelector((state) => state.orders);
 
   const getUniqueObjects = (originalArray, key) => {
@@ -89,8 +91,15 @@ const Dashboard = () => {
         }
     };
     
-    return getTableData();
+    return selectedCellData.length ? selectedCellData : getTableData();
   }, [orders, tableSelected]);
+
+  const openSelectedCell = (data) => {
+    const tableValue = data.columnSelected;
+    const newTableValue = tableValue.charAt(0).toUpperCase() + tableValue.replace(/_info$/, '').slice(1);
+    dispatch(setTableSelected(newTableValue));
+    dispatch(setSelectedCellData(data.tableData));
+  };
 
   useEffect(() => {
     //tableData
@@ -115,7 +124,7 @@ const Dashboard = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {/* Tables */}
-            <Table tableSelected={tableSelected} tableData={tableData}/>
+            <Table tableSelected={tableSelected} tableData={tableData} setSelectedCol={openSelectedCell}/>
             {/* Recent Queries */}
             <Queries/>
           </Grid>
