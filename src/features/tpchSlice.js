@@ -6,12 +6,13 @@ const initialState = {
         'Customer',
         'Nation',
         'Region',
-        'Lineitem',
+        'Lineitems',
         'Partsupp',
         'Part',
         'Supplier'
     ],
     tableSelected: "Orders",
+    selectedCellData: [],
     columns: {
         Orders: [
             {field: 'order_key', header: 'Order Key'},
@@ -46,7 +47,7 @@ const initialState = {
             {field: 'region_name', header: 'Name'},
             {field: 'region_comment', header: 'Region Comment'}
         ],
-        Lineitem: [
+        Lineitems: [
             {field: 'order_key', header: 'Order Key'},
             {field: 'part_key', header: 'Part Key', nestedCol: 'partsupp'},
             {field: 'supplier_key', header: 'Supplier Key', nestedCol: 'partsupp'},
@@ -104,10 +105,20 @@ const tpchSlice = createSlice({
     reducers: {
         setTableSelected: (state, action) => {
             state.tableSelected = action.payload;
+        },
+        setSelectedCellData: (state, action) => {
+            if(Array.isArray(action.payload)) {
+                state.selectedCellData = [...action.payload];
+            } else {
+                state.selectedCellData = [action.payload];
+            }
+        },
+        clearSelectedCellData: (state) => {
+            state.selectedCellData = [];
         }
     }
 });
 
-export const { setTableSelected } = tpchSlice.actions;
+export const { setTableSelected, setSelectedCellData, clearSelectedCellData } = tpchSlice.actions;
 export default tpchSlice.reducer;
 
