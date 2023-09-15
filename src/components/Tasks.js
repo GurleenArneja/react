@@ -12,17 +12,25 @@ import {
   FormControl,
   InputLabel
 } from "@mui/material";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
 
 import { useSelector } from "react-redux";
 import axios from 'axios';
+import QueryStage from './QueryStage';
 
 const Tasks = () => {
   const { orders } = useSelector((state) => state.orders);
   const { tasks } = useSelector((state) => state.tasks);
-  const [taskSelected, setTaskSelected] = useState("");
+
+  const [querySelected, setQuerySelected] = useState("");
   const [nation, setNation] = useState();
   const [nationSelected, setNationSelected] = useState("");
+  const [stageSelected, setStageSelected] = useState("stage1");
   const [queryData, setQueryData] = useState();
+  const [stageSchema, setStageSchema] = useState();
+
+  const { columns } = useSelector((state) => state.tpch);
 
   const getUniqueObjects = (originalArray, key) => {
     const uniqueKeys = new Set();
@@ -52,21 +60,68 @@ const Tasks = () => {
   useEffect(()=> {
     const nationArr = getNation();
     setNation(nationArr);
-  },[taskSelected]);
+  },[querySelected]);
 
   useEffect(()=> {
-    if (taskSelected && nationSelected) {
-      axios.get('https://api.example.com/data', { nationSelected })
-      .then((response) => {
-        console.log(response.data);
-        setQueryData({ data: response.data });
+    if (querySelected && nationSelected) {
+      fetch(`${process.env.PUBLIC_URL}/s1.json`)
+      .then((response) => response.json())
+      .then((data) => {
+        setStageSchema(tasks[querySelected].stageSchema[stageSelected]);
+        setQueryData(data)
       })
-      .catch((error) => {
-        // Handle any errors that occurred during the request
-        console.error('Error fetching data:', error);
-      });
+      .catch((error) => console.error('Error fetching JSON data', error));
+      // const queryParams = {
+      //   nationSelected: nationSelected,
+      //   stage: stageSelected
+      // };
+      // axios.get('https://api.example.com/data', queryParams)
+      // .then((response) => {
+      //   console.log(response.data);
+      //   setStageSchema(tasks[querySelected].stageSchema[stageSelected]);
+      //   setQueryData(response.data);
+      // })
+      // .catch((error) => {
+      //   // Handle any errors that occurred during the request
+      //   console.error('Error fetching data:', error);
+      // });
     }
-  },[nationSelected]);
+  },[nationSelected, stageSelected]);
+
+  function getStages() {
+    const stages = [];
+    for(let i=1; i<=tasks[querySelected].stages; i++) {
+      stages.push("Stage"+i);
+    }
+    return stages;
+  }
+  
+  const selectedStage = (data) => {
+    setStageSelected(() => data);
+  }
+
+  const renderColumnContent = (rowData, column) => {
+    const {field, nestedCol} = column;
+    if ( rowData ) {
+        if (nestedCol) {
+            if (!field) {
+                // only for orders to calculate number of line items
+                return (
+                    <span>
+                        {rowData[nestedCol].length}
+                    </span>
+                );
+            }
+            return ( 
+                <span>
+                    {rowData[nestedCol][field]}
+                </span>
+            );
+        } else {
+            return <span>{rowData[field]}</span>;
+        }
+    }
+  };
 
   return (
     <>
@@ -97,27 +152,57 @@ const Tasks = () => {
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel>Queries</InputLabel>
                 <Select
-                      value={taskSelected}
-                      onChange={(event) => setTaskSelected(event.target.value)}
+                      value={querySelected}
+                      onChange={(event) => setQuerySelected(event.target.value)}
                       label="Queries"
                       >
-                          {tasks.map((value) => {
+                          {Object.keys(tasks).map((value) => {
                               return (<MenuItem key={value} value={value}>{value}</MenuItem>)
                           })}
                   </Select>
               </FormControl>
-              {taskSelected && <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel>Select Nation</InputLabel>
-                <Select
-                      value={nationSelected}
-                      onChange={(event) => setNationSelected(event.target.value)}
-                      label="Queries"
-                      >
-                          {nation.map((value) => {
-                              return (<MenuItem key={value} value={value}>{value}</MenuItem>)
-                          })}
-                  </Select>
-              </FormControl>}
+              {querySelected && <Grid container spacing={2}>
+                <Grid item xs={6} md={3}>
+                  <FormControl variant="standard" sx={{ m: 1, width: '90%' }}>
+                    <InputLabel>Select Nation</InputLabel>
+                    <Select
+                          value={nationSelected}
+                          onChange={(event) => setNationSelected(event.target.value)}
+                          label="Queries"
+                          >
+                              {nation.map((value) => {
+                                  return (<MenuItem key={value} value={value}>{value}</MenuItem>)
+                              })}
+                      </Select>
+                  </FormControl>
+                </Grid>
+                {nationSelected && <Grid item xs={6} md={9}>
+                  <QueryStage steps={getStages()} setStageSelected={selectedStage}/>
+                </Grid>}
+              </Grid>
+              }
+              {queryData && <Grid item xs={12} md={8} lg={9}>
+                <DataTable
+                  dataKey="id"
+                  value={queryData}
+                  stripedRows 
+                  paginator rows={5}
+                  size='small'
+                  className='query-table'
+                  emptyMessage="No Data found."
+                >
+                    {columns[stageSchema].map((col, i) => (
+                        <Column 
+                            className='dashboard-column'
+                            key={col.field} 
+                            field={col.field} 
+                            header={col.header}
+                            nestedCol={col.nestedCol}
+                            body={(rowData) => renderColumnContent(rowData, col)}
+                        />
+                    ))}
+                </DataTable>
+              </Grid>}
             </Paper>
           </Grid>
         </Container>
