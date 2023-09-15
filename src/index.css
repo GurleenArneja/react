@@ -1,5 +1,11 @@
+.query-table .p-datatable-scrollable,
 .dashboard-table .p-datatable-scrollable {
     overflow-x: scroll;
+}
+
+.query-table .p-datatable-wrapper {
+    height: 250px;
+    width: 100%
 }
 
 .dashboard-table .p-datatable-wrapper {
@@ -7,14 +13,18 @@
     width: 100%
 }
 
+.query-table .p-paginator,
 .dashboard-table .p-paginator {
     border-width: 0 !important;
 }
 
+.query-table .p-paginator-page,
 .dashboard-table .p-paginator-page {
     font-size: 12px;
 }
 
+.query-table .p-datatable-tbody td,
+.query-table .p-datatable-thead th,
 .dashboard-table .p-datatable-tbody td,
 .dashboard-table .p-datatable-thead th {
     white-space: nowrap;
