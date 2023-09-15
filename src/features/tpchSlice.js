@@ -90,6 +90,10 @@ const initialState = {
             {field: 'supplier_phone', header: 'Phone'},
             {field: 'supplier_acctbal', header: 'Account Bal'},
             {field: 'supplier_comment', header: 'Comment'}
+        ],
+        Q21: [
+            {field: '_id', header: 'ID'},
+            {field: 'numwait', header: 'Waiting Orders'}
         ]
     }
 };
