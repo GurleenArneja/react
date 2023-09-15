@@ -9,7 +9,10 @@ const QueryStage = ({ steps, setStageSelected }) => {
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
-    setStageSelected(steps[activeStep + 1]);
+    const stage = steps[activeStep + 1];
+    if (stage) {
+      setStageSelected(stage);
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 

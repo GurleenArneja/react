@@ -58,7 +58,7 @@ const Dashboard = () => {
                 const flatRegionArray = combinedRegionObjects.flat(Infinity);
                 const uniqueRegions = getUniqueObjects(flatRegionArray, 'region_key');
                 return uniqueRegions;
-            case 'Lineitem':
+            case 'Lineitems':
                 const lineitemData = orders.map(order => order.lineitems);
                 const flatLineitemData = lineitemData.flat(Infinity);
                 return flatLineitemData;
