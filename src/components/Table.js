@@ -8,14 +8,13 @@ import { FaSearch } from 'react-icons/fa';
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { FilterMatchMode } from 'primereact/api';
 
 import { InputText } from 'primereact/inputtext';
-import { MultiSelect } from 'primereact/multiselect';
 
 import { useSelector } from "react-redux";
 
-const Table = ({tableSelected, tableData}) => {
+const Table = ({tableSelected, tableData, setSelectedCol}) => {
     const [filters, setFilters] = useState({});
     const [globalFilterValue, setGlobalFilterValue] = useState('');
 
@@ -28,8 +27,13 @@ const Table = ({tableSelected, tableData}) => {
 
     const openSelectedCell = (value) => {
         const columnSelected = value?.column?.props?.nestedCol;
+        const columnData = value?.rowData[columnSelected];
         setSelectedCell(value.rowIndex);
-        console.log(columnSelected, value?.rowData[columnSelected], value);
+        const data = {
+            columnSelected: columnSelected,
+            tableData: columnData
+        };
+        setSelectedCol(data);
     }
 
     const onGlobalFilterChange = (e) => {
