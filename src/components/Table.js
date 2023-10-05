@@ -12,11 +12,15 @@ import { FilterMatchMode } from 'primereact/api';
 
 import { InputText } from 'primereact/inputtext';
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setFilterTextField } from '../features/tpchSlice';
 
-const Table = ({tableSelected, tableData, setSelectedCol}) => {
+const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, selectedQueryData}) => {
+    const dispatch = useDispatch();
+
     const [filters, setFilters] = useState({});
     const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [filterText, setFilterText] = useState('');
 
     const [columnFields, setColumnFields] = useState([]);
 
@@ -24,6 +28,15 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
     const isCellSelectable = (event) => (event?.data?.column?.props?.nestedCol ? true : false);
 
     const { columns } = useSelector((state) => state.tpch);
+
+    const [sortField, setSortField] = useState(null);
+    const [sortOrder, setSortOrder] = useState(null);
+
+    const [queries, setQueries] = useState([]);
+
+    useEffect(() => {
+        setRecentActions(queries);
+    },[queries]);
 
     const openSelectedCell = (value) => {
         const columnSelected = value?.column?.props?.nestedCol;
@@ -37,21 +50,25 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
     }
 
     const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        let _filters = { ...filters };
+        if (e.key === 'Enter') {
+            let _filters = { ...filters };
+            _filters['global'].value = globalFilterValue;
+            setFilters(() => _filters);
+            setQueryData();
+        }
 
-        _filters['global'].value = value;
-
-        setFilters(_filters);
-        setGlobalFilterValue(value);
     };
+
+    const onInputChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    }
 
     const renderHeader = () => {
         return (
             <div className="flex justify-content-end">
                 <span className="p-input-icon-left">
                     <FaSearch />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
+                    <InputText value={globalFilterValue} onChange={onInputChange} onKeyDown={onGlobalFilterChange} placeholder="Keyword Search" />
                 </span>
             </div>
         );
@@ -63,16 +80,16 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
         const {field, nestedCol} = column;
         if ( rowData ) {
             if (nestedCol) {
-                if (!field) {
+                if (field === 'lineitems') {
                     // only for orders to calculate number of line items
                     return (
-                        <span style={{ color: '#3F51B5'}}>
+                        <span style={{ color: '#3F51B5', cursor:'pointer'}}>
                             {rowData[nestedCol].length}
                         </span>
                     );
                 }
                 return ( 
-                    <span style={{ color: '#3F51B5'}}>
+                    <span style={{ color: '#3F51B5', cursor:'pointer'}}>
                         {rowData[nestedCol][field]}
                     </span>
                 );
@@ -85,11 +102,15 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
     useEffect(() => {
         setColumnFields(() => {
             const selectedColumns = columns[tableSelected];
-            return selectedColumns.map(column => column.field);
+            return selectedColumns.map(column => {
+                if (column.nestedCol)
+                    return column.nestedCol + '.' + column.field;
+                return column.field
+            });
         });
     },[tableSelected])
 
-    useEffect(() => {
+    const initialiseFilters = () => {
         setFilters(() => {
             const initialFilters = {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -101,7 +122,85 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
         
             return initialFilters;
         })
+    };
+
+    useEffect(() => {
+        initialiseFilters();
     }, [columnFields]);
+
+    useEffect(() => {
+        setSortField(null);
+        setSortOrder(null);
+        if (selectedQueryData) {
+            setSortField(selectedQueryData.col);
+            setSortOrder(selectedQueryData.order);
+            setFilters(() => selectedQueryData.filters);
+            let updatedColumns = JSON.parse(JSON.stringify(columns[tableSelected]));
+            updatedColumns.map(column => {
+                const field = column.nestedCol ? column.nestedCol + '.' + column.field : column.field;
+                const filterValue = selectedQueryData.filters[field]?.value ? selectedQueryData.filters[field].value : "";
+                column.filterText = filterValue
+                return column;
+              });
+            dispatch(setFilterTextField(updatedColumns));
+        }
+
+    },[selectedQueryData])
+
+    const onSort = (e) => {
+        setSortField(() => e.sortField);
+        setSortOrder(() => e.sortOrder);
+        setQueryData(e.sortField, e.sortOrder, "Sort");
+    }
+
+    function onChange(e, index) {
+        setFilterText(e.target.value);
+        const updatedColumns = [...columns[tableSelected]];
+        updatedColumns[index] = {
+            ...updatedColumns[index],
+            filterText: e.target.value,
+        };
+        dispatch(setFilterTextField(updatedColumns));
+    }
+
+    function checkIfFilterHasValue(obj) {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key].value !== null) {
+                    return true;
+                }
+            }
+            return false;
+    }
+    
+    function setQueryData(col, order, action) {
+        if (checkIfFilterHasValue(filters) || action === 'Sort' || (sortField && sortOrder)) {
+            setQueries(() => [...queries, {
+                table: tableSelected,
+                col: col ? col : sortField,
+                order: order ? order : sortOrder,
+                filters: JSON.parse(JSON.stringify(filters)),
+                time: new Date()
+            }]);
+        }
+    }
+
+    function onKeyDown(e, col) {
+       if (e.key === 'Enter') {
+            let _filters = { ...filters };
+            const filterField = col.nestedCol ? col.nestedCol + '.' + col.field : col.field;
+            if (filterText === "") {
+                _filters[filterField].value = null;
+            } else {
+                _filters[filterField].value = filterText;
+            }
+            setFilters(() => _filters);
+            setQueryData();
+       }
+    }
+
+    useEffect(() =>{
+        console.log(columns[tableSelected]);
+    },[columns]);
 
     return (
         <Grid item xs={12} md={8} lg={9}>
@@ -132,6 +231,9 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
                 className='dashboard-table'
                 tableStyle={{ minWidth: '50rem' }}
                 emptyMessage="No Data found."
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={onSort}
             >
                 {columns[tableSelected].map((col, i) => (
                     <Column 
@@ -143,6 +245,7 @@ const Table = ({tableSelected, tableData, setSelectedCol}) => {
                         body={(rowData) => renderColumnContent(rowData, col)}
                         sortable
                         filter
+                        filterElement={<InputText name="filterField" value={col.filterText} onChange={(e) => onChange(e, i)} onKeyDown={(e) => onKeyDown(e, col)} />}
                         showFilterMenu={false}
                     />
                 ))}
