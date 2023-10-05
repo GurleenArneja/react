@@ -8,7 +8,7 @@ import {
   Toolbar
 } from "@mui/material";
 import Table from './Table';
-import Queries from './Queries';
+import RecentQueries from './RecentQueries';
 import { useSelector, useDispatch } from 'react-redux';
 import { setTableSelected, setSelectedCellData } from '../features/tpchSlice';
 
@@ -16,6 +16,9 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const { tableSelected, selectedCellData } = useSelector((state) => state.tpch);
   const { orders } = useSelector((state) => state.orders);
+
+  const [recentQueries, setRecentQueries] = useState(null);
+  const [selectedQueryData, setSelectedQueryData] = useState(null);
 
   const getUniqueObjects = (originalArray, key) => {
     const uniqueKeys = new Set();
@@ -58,7 +61,7 @@ const Dashboard = () => {
                 const flatRegionArray = combinedRegionObjects.flat(Infinity);
                 const uniqueRegions = getUniqueObjects(flatRegionArray, 'region_key');
                 return uniqueRegions;
-            case 'Lineitems':
+            case 'Lineitem':
                 const lineitemData = orders.map(order => order.lineitems);
                 const flatLineitemData = lineitemData.flat(Infinity);
                 return flatLineitemData;
@@ -90,7 +93,7 @@ const Dashboard = () => {
                 return uniqueSuppliers;
         }
     };
-    
+
     return selectedCellData.length ? selectedCellData : getTableData();
   }, [orders, tableSelected]);
 
@@ -100,6 +103,15 @@ const Dashboard = () => {
     dispatch(setTableSelected(newTableValue));
     dispatch(setSelectedCellData(data.tableData));
   };
+
+  const setRecentActions = (data) => {
+    setRecentQueries(data);
+  }
+
+  const selectedQuery = (query) => {
+    dispatch(setTableSelected(query.table));
+    setSelectedQueryData(query);
+  }
 
   useEffect(() => {
     //tableData
@@ -124,9 +136,13 @@ const Dashboard = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {/* Tables */}
-            <Table tableSelected={tableSelected} tableData={tableData} setSelectedCol={openSelectedCell}/>
+            <Table tableSelected={tableSelected} 
+              tableData={tableData} 
+              setSelectedCol={openSelectedCell}
+              setRecentActions={setRecentActions}
+              selectedQueryData={selectedQueryData}/>
             {/* Recent Queries */}
-            <Queries/>
+            <RecentQueries recentQueries={recentQueries} selectedQuery={selectedQuery}/>
           </Grid>
         </Container>
       </Box>
