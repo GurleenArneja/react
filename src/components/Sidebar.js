@@ -15,7 +15,8 @@ import {
   FaThLarge,
   FaRegChartBar,
   FaChartPie,
-  FaFileAlt
+  FaFileAlt,
+  FaUser 
 } from 'react-icons/fa';
 
 const navbarItems = [
@@ -38,6 +39,11 @@ const navbarItems = [
     text: "Documents",
     icon: <FaFileAlt />,
     path: "/documents"
+  },
+  {
+    text: "User",
+    icon: <FaUser />,
+    path: "/user"
   }
 ]
 
@@ -67,7 +73,7 @@ const Sidebar = ({drawerWidth}) => {
 
       <Divider />
       <List component="nav">
-        {navbarItems.map((item, index) => (
+        {navbarItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton to={item.path}>
               <ListItemIcon>
