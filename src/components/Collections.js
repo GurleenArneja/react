@@ -5,6 +5,9 @@ const Collections = () => {
   return (
     <>
       <HeaderLinks header="Collections"/>
+      <div className='mainContent'>
+        <img className="schemaDiag" src="../schema.png" alt='schema'></img>
+      </div>
     </>
   );
 };
