@@ -5,6 +5,7 @@ import SharedLayout from './components/SharedLayout';
 import Collections from './components/Collections';
 import Documents from './components/Documents';
 import Tasks from './components/Tasks';
+import User from './components/User';
 
 const AppRoutes = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
             <Route path='collections' element={<Collections/>}/>
             <Route path='tasks' element={<Tasks/>}/>
             <Route path='documents' element={<Documents/>}/>
+            <Route path='user' element={<User/>}/>
           </Route>
         </Routes>
     </BrowserRouter>
