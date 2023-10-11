@@ -19,7 +19,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     const dispatch = useDispatch();
 
     const [filters, setFilters] = useState({});
-    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    // const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filterText, setFilterText] = useState('');
 
     const [columnFields, setColumnFields] = useState([]);
@@ -49,32 +49,32 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
         setSelectedCol(data);
     }
 
-    const onGlobalFilterChange = (e) => {
-        if (e.key === 'Enter') {
-            let _filters = { ...filters };
-            _filters['global'].value = globalFilterValue;
-            setFilters(() => _filters);
-            setQueryData();
-        }
+    // const onGlobalFilterChange = (e) => {
+    //     if (e.key === 'Enter') {
+    //         let _filters = { ...filters };
+    //         _filters['global'].value = globalFilterValue;
+    //         setFilters(() => _filters);
+    //         setQueryData();
+    //     }
 
-    };
+    // };
 
-    const onInputChange = (e) => {
-        setGlobalFilterValue(e.target.value);
-    }
+    // const onInputChange = (e) => {
+    //     setGlobalFilterValue(e.target.value);
+    // }
 
-    const renderHeader = () => {
-        return (
-            <div className="flex justify-content-end">
-                <span className="p-input-icon-left">
-                    <FaSearch />
-                    <InputText value={globalFilterValue} onChange={onInputChange} onKeyDown={onGlobalFilterChange} placeholder="Keyword Search" />
-                </span>
-            </div>
-        );
-    };
+    // const renderHeader = () => {
+    //     return (
+    //         <div className="flex justify-content-end">
+    //             <span className="p-input-icon-left">
+    //                 <FaSearch />
+    //                 <InputText value={globalFilterValue} onChange={onInputChange} onKeyDown={onGlobalFilterChange} placeholder="Keyword Search" />
+    //             </span>
+    //         </div>
+    //     );
+    // };
 
-    const header = renderHeader();
+    // const header = renderHeader();
 
     const renderColumnContent = (rowData, column) => {
         const {field, nestedCol} = column;
@@ -113,7 +113,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     const initialiseFilters = () => {
         setFilters(() => {
             const initialFilters = {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+                // global: { value: null, matchMode: FilterMatchMode.CONTAINS }
             };
         
             columnFields.forEach(field => {
@@ -217,17 +217,17 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
                 dataKey="id"
                 value={tableData}
                 stripedRows 
-                paginator rows={8}
+                paginator rows={9}
                 size='small'
                 filters={filters}
                 filterDisplay="row"
-                globalFilterFields={columnFields}
+                // globalFilterFields={columnFields}
                 cellSelection 
                 selectionMode="single" 
                 selection={selectedCell}
                 onSelectionChange={(e) => openSelectedCell(e.value)}
                 isDataSelectable={isCellSelectable}
-                header={header}
+                // header={header}
                 className='dashboard-table'
                 tableStyle={{ minWidth: '50rem' }}
                 emptyMessage="No Data found."
