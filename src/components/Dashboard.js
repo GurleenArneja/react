@@ -11,8 +11,13 @@ import Table from './Table';
 import RecentQueries from './RecentQueries';
 import { useSelector, useDispatch } from 'react-redux';
 import { setTableSelected, setSelectedCellData } from '../features/tpchSlice';
+import { useNavigate } from 'react-router-dom';
+import { setUsersRecentAction } from '../features/authSlice';
 
 const Dashboard = () => {
+  const { isLoggedIn } = useSelector((state) => state.auth);
+
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tableSelected, selectedCellData } = useSelector((state) => state.tpch);
   const { orders } = useSelector((state) => state.orders);
@@ -106,6 +111,7 @@ const Dashboard = () => {
 
   const setRecentActions = (data) => {
     setRecentQueries(data);
+    dispatch(setUsersRecentAction(data));
   }
 
   const selectedQuery = (query) => {
@@ -115,6 +121,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     //tableData
+    if (!isLoggedIn) {
+      navigate('/');
+    }
   }, [tableData]);
 
   return (
