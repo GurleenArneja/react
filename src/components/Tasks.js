@@ -18,8 +18,15 @@ import { Column } from 'primereact/column';
 import { useSelector } from "react-redux";
 import axios from 'axios';
 import QueryStage from './QueryStage';
+import { useNavigate } from 'react-router-dom';
 
 const Tasks = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useSelector((state) => state.auth);
+
+  if (!isLoggedIn) {
+    navigate('/');
+  }
   const { orders } = useSelector((state) => state.orders);
   const { tasks } = useSelector((state) => state.tasks);
 
