@@ -1,3 +1,7 @@
+.css-tlelie-MuiListItemText-root {
+    display: inline-block;
+}
+
 .query-table .p-datatable-scrollable,
 .dashboard-table .p-datatable-scrollable {
     overflow-x: scroll;
@@ -9,7 +13,7 @@
 }
 
 .dashboard-table .p-datatable-wrapper {
-    height: 370px;
+    height: 425px;
     width: 100%
 }
 
@@ -45,7 +49,7 @@
     display: none;
 }
 
-.p-input-icon-left, .p-input-icon-right {
+/* .p-input-icon-left, .p-input-icon-right {
     width: 100%;
 }
 
@@ -54,7 +58,7 @@
     width: 100%;
     border: none;
     padding: 10px;
-}
+} */
 
 .p-inputtext:enabled:focus {
     box-shadow: none !important;
