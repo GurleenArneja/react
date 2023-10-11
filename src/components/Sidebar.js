@@ -16,38 +16,47 @@ import {
   FaRegChartBar,
   FaChartPie,
   FaFileAlt,
-  FaUser 
+  FaSignOutAlt
 } from 'react-icons/fa';
+
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const navbarItems = [
   {
     text: "Dashboard",
     icon: <FaThLarge />,
-    path: "/"
+    path: "/tpch"
   },
   {
     text: "Collections",
     icon: <FaRegChartBar />,
-    path: "/collections"
+    path: "/tpch/collections"
   },
   {
     text: "Tasks",
     icon: <FaChartPie />,
-    path: "/tasks"
+    path: "/tpch/tasks"
   },
   {
     text: "Documents",
     icon: <FaFileAlt />,
-    path: "/documents"
+    path: "/tpch/documents"
   },
   {
-    text: "User",
-    icon: <FaUser />,
-    path: "/user"
+    text: "Logout",
+    icon: <FaSignOutAlt />,
+    path: "/logout"
   }
 ]
 
-const Sidebar = ({drawerWidth}) => {
+const Sidebar = ({ drawerWidth }) => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useSelector((state) => state.auth);
+
+  if (!isLoggedIn) {
+    navigate('/');
+  }
   return (
     <Drawer variant="permanent" anchor="left"
       sx={{
@@ -75,11 +84,13 @@ const Sidebar = ({drawerWidth}) => {
       <List component="nav">
         {navbarItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <ListItemButton to={item.path}>
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
+            <ListItemButton>
+              <Link to={item.path} style={{textDecoration: 'none', color: 'inherit'}}>
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text}/>
+              </Link>
             </ListItemButton >
           </ListItem>
         ))}
