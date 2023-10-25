@@ -4,7 +4,7 @@ import {
     Grid,
     Paper,
 } from "@mui/material";
-import { FaSearch } from 'react-icons/fa';
+// import { FaSearch } from 'react-icons/fa';
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -14,8 +14,9 @@ import { InputText } from 'primereact/inputtext';
 
 import { useSelector, useDispatch } from "react-redux";
 import { setFilterTextField } from '../features/tpchSlice';
+import { setUsersRecentAction } from '../features/authSlice';
 
-const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, selectedQueryData}) => {
+const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, selectedQueryData, recentQueries}) => {
     const dispatch = useDispatch();
 
     const [filters, setFilters] = useState({});
@@ -35,6 +36,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     const [queries, setQueries] = useState([]);
 
     useEffect(() => {
+        //callback to pass data to dashboard
         setRecentActions(queries);
     },[queries]);
 
@@ -53,7 +55,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     //     if (e.key === 'Enter') {
     //         let _filters = { ...filters };
     //         _filters['global'].value = globalFilterValue;
-    //         setFilters(() => _filters);
+    //         setFilters(() => _filters);6
     //         setQueryData();
     //     }
 
@@ -80,14 +82,6 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
         const {field, nestedCol} = column;
         if ( rowData ) {
             if (nestedCol) {
-                if (field === 'lineitems') {
-                    // only for orders to calculate number of line items
-                    return (
-                        <span style={{ color: '#3F51B5', cursor:'pointer'}}>
-                            {rowData[nestedCol].length}
-                        </span>
-                    );
-                }
                 return ( 
                     <span style={{ color: '#3F51B5', cursor:'pointer'}}>
                         {rowData[nestedCol][field]}
@@ -124,8 +118,18 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
         })
     };
 
+    const initialFilterText = () => {
+        let updatedColumns = JSON.parse(JSON.stringify(columns[tableSelected]));
+        updatedColumns.map(column => {
+            column.filterText = '';
+            return column;
+          });
+        dispatch(setFilterTextField({updatedColumns: updatedColumns, tableSelected: tableSelected}));
+    };
+
     useEffect(() => {
         initialiseFilters();
+        initialFilterText();
     }, [columnFields]);
 
     useEffect(() => {
@@ -142,7 +146,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
                 column.filterText = filterValue
                 return column;
               });
-            dispatch(setFilterTextField(updatedColumns));
+            dispatch(setFilterTextField({updatedColumns: updatedColumns, tableSelected: tableSelected}));
         }
 
     },[selectedQueryData])
@@ -160,7 +164,7 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
             ...updatedColumns[index],
             filterText: e.target.value,
         };
-        dispatch(setFilterTextField(updatedColumns));
+        dispatch(setFilterTextField({updatedColumns: updatedColumns, tableSelected: tableSelected}));
     }
 
     function checkIfFilterHasValue(obj) {
@@ -174,13 +178,16 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     
     function setQueryData(col, order, action) {
         if (checkIfFilterHasValue(filters) || action === 'Sort' || (sortField && sortOrder)) {
-            setQueries(() => [...queries, {
+            const newQueries = [...queries, {
                 table: tableSelected,
                 col: col ? col : sortField,
                 order: order ? order : sortOrder,
                 filters: JSON.parse(JSON.stringify(filters)),
                 time: new Date()
-            }]);
+            }];
+            setQueries(() => newQueries);
+            dispatch(setUsersRecentAction(newQueries));
+
         }
     }
 
@@ -201,6 +208,12 @@ const Table = ({tableSelected, tableData, setSelectedCol, setRecentActions, sele
     useEffect(() =>{
         console.log(columns[tableSelected]);
     },[columns]);
+
+    useEffect(() => {
+        if (recentQueries) {
+            setQueries(recentQueries);
+        }
+    },[]);
 
     return (
         <Grid item xs={12} md={8} lg={9}>

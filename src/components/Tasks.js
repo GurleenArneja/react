@@ -14,13 +14,17 @@ import {
 } from "@mui/material";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { FilterMatchMode } from 'primereact/api';
+import { InputText } from 'primereact/inputtext';
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
 import QueryStage from './QueryStage';
 import { useNavigate } from 'react-router-dom';
+import { setFilterTextField } from '../features/tpchSlice';
 
 const Tasks = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoggedIn } = useSelector((state) => state.auth);
 
@@ -36,6 +40,8 @@ const Tasks = () => {
   const [stageSelected, setStageSelected] = useState("stage1");
   const [queryData, setQueryData] = useState();
   const [stageSchema, setStageSchema] = useState();
+  const [filters, setFilters] = useState({});
+  const [filterText, setFilterText] = useState('');
 
   const { columns } = useSelector((state) => state.tpch);
 
@@ -50,6 +56,33 @@ const Tasks = () => {
       }
     });
     return uniqueArray;
+  };
+
+  const initialFilterText = () => {
+    let updatedColumns = JSON.parse(JSON.stringify(columns[stageSchema]));
+    updatedColumns.map(column => {
+      column.filterText = '';
+      return column;
+    });
+    dispatch(setFilterTextField({ updatedColumns: updatedColumns, tableSelected: stageSchema }));
+  };
+
+  const initialiseFilters = (schema) => {
+    const selectedColumns = columns[schema];
+    const columnFields = selectedColumns.map(column => {
+      if (column.nestedCol)
+        return column.nestedCol + '.' + column.field;
+      return column.field
+    });
+    setFilters(() => {
+      const initialFilters = {};
+
+      columnFields.forEach(field => {
+        initialFilters[field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
+      });
+
+      return initialFilters;
+    });
   };
 
   function getNation() {
@@ -79,7 +112,6 @@ const Tasks = () => {
 
     if (querySelected && nationSelected) {
       const url = 'http://localhost:8000/get_supplier_info';
-      console.log("stageSelected:",stageSelected);
       const queryParams = {
         country_query: nationSelected,
         stage: stageSelected.replace('stage', '')
@@ -93,17 +125,25 @@ const Tasks = () => {
       // Make the POST request with query parameters and headers
       axios.post(url, null, { params: queryParams, headers })
         .then((response) => {
-          console.log(response.data);
           const schema = tasks[querySelected].stageSchema[stageSelected];
           setStageSchema(schema);
 
-          if(schema === 'Lineitems') {
+          if (schema === 'Orders') {
+            const neworder = response.data.map(order => {
+              order.lineitems['noOfLineItems'] = order.lineitems.length;
+              return order;
+            });
+            setQueryData(neworder);
+          }
+          else if (schema === 'Lineitems') {
             const lineitemData = getLineItems(response.data);
             setQueryData(lineitemData);
           }
           else {
             setQueryData(response.data);
           }
+          initialiseFilters(schema);
+          initialFilterText();
         })
         .catch((error) => {
           console.error('Error:', error);
@@ -129,14 +169,6 @@ const Tasks = () => {
     const { field, nestedCol } = column;
     if (rowData) {
       if (nestedCol) {
-        if (!field) {
-          // only for orders to calculate number of line items
-          return (
-            <span>
-              {rowData[nestedCol].length}
-            </span>
-          );
-        }
         return (
           <span>
             {rowData[nestedCol][field]}
@@ -147,6 +179,24 @@ const Tasks = () => {
       }
     }
   };
+
+  function onChange(e, index) {
+    setFilterText(e.target.value);
+    const updatedColumns = [...columns[stageSchema]];
+    updatedColumns[index] = {
+      ...updatedColumns[index],
+      filterText: e.target.value,
+    };
+    dispatch(setFilterTextField({ updatedColumns: updatedColumns, tableSelected: stageSchema }));
+  }
+  function onKeyDown(e, col) {
+    if (e.key === 'Enter') {
+      let _filters = { ...filters };
+      const filterField = col.nestedCol ? col.nestedCol + '.' + col.field : col.field;
+      _filters[filterField].value = filterText === "" ? null : filterText;
+      setFilters(() => _filters);
+    }
+  }
 
   return (
     <>
@@ -211,7 +261,9 @@ const Tasks = () => {
                   dataKey="id"
                   value={queryData}
                   stripedRows
-                  paginator rows={5}
+                  paginator rows={4}
+                  filters={filters}
+                  filterDisplay="row"
                   size='small'
                   className='query-table'
                   emptyMessage="No Data found."
@@ -224,6 +276,10 @@ const Tasks = () => {
                       header={col.header}
                       nestedCol={col.nestedCol}
                       body={(rowData) => renderColumnContent(rowData, col)}
+                      filter
+                      sortable
+                      filterElement={<InputText name="filterField" value={col.filterText} onChange={(e) => onChange(e, i)} onKeyDown={(e) => onKeyDown(e, col)} />}
+                      showFilterMenu={false}
                     />
                   ))}
                 </DataTable>

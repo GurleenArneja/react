@@ -1,0 +1,85 @@
+{
+  "_id": {
+    "$oid": "<Unique Identifier>"
+  },
+  "order_key": "<Order Key>",
+  "orderstatus": "<Order Status>",
+  "totalprice": "<Total Price>",
+  "orderdate": "<Order Date>",
+  "orderpriority": "<Order Priority>",
+  "clerk": "<Clerk Information>",
+  "shippriority": "<Shipping Priority>",
+  "comment": "<Order Comment>",
+  "customer_info": {
+    "customer_key": "<Customer Key>",
+    "customer_name": "<Customer Name>",
+    "customer_address": "<Customer Address>",
+    "customer_phone": "<Customer Phone>",
+    "customer_acctbal": "<Customer Account Balance>",
+    "customer_mktsegment": "<Customer Market Segment>",
+    "customer_comment": "<Customer Comment>",
+    "nation": {
+      "nation_key": "<Nation Key>",
+      "nation_name": "<Nation Name>",
+      "nation_comment": "<Nation Comment>",
+      "region": {
+        "region_key": "<Region Key>",
+        "region_name": "<Region Name>",
+        "region_comment": "<Region Comment>"
+      }
+    }
+  },
+  "lineitems": [
+    {
+      "order_key": "<Order Key>",
+      "partsupp": {
+        "part_key": "<Part Key>",
+        "supplier_key": "<Supplier Key>",
+        "avail_qty": "<Available Quantity>",
+        "supply_cost": "<Supply Cost>",
+        "comment": "<Part Supplier Comment>",
+        "part": {
+          "part_name": "<Part Name>",
+          "part_mfgr": "<Part Manufacturer>",
+          "part_brand": "<Part Brand>",
+          "part_type": "<Part Type>",
+          "part_size": "<Part Size>",
+          "part_container": "<Part Container>",
+          "part_retailprice": "<Part Retail Price>",
+          "part_comment": "<Part Comment>"
+        },
+        "supplier_info": {
+          "supplier_key": "<Supplier Key>",
+          "supplier_name": "<Supplier Name>",
+          "supplier_address": "<Supplier Address>",
+          "supplier_phone": "<Supplier Phone>",
+          "supplier_acctbal": "<Supplier Account Balance>",
+          "supplier_comment": "<Supplier Comment>",
+          "nation": {
+            "nation_key": "<Nation Key>",
+            "nation_name": "<Nation Name>",
+            "nation_comment": "<Nation Comment>",
+            "region": {
+              "region_key": "<Region Key>",
+              "region_name": "<Region Name>",
+              "region_comment": "<Region Comment>"
+            }
+          }
+        }
+      },
+      "linenumber": "<Line Number>",
+      "quantity": "<Quantity>",
+      "extendedprice": "<Extended Price>",
+      "discount": "<Discount>",
+      "tax": "<Tax>",
+      "returnflag": "<Return Flag>",
+      "linestatus": "<Line Status>",
+      "shipdate": "<Ship Date>",
+      "commitdate": "<Commit Date>",
+      "receiptdate": "<Receipt Date>",
+      "shipinstruct": "<Shipping Instructions>",
+      "shipmode": "<Shipping Mode>",
+      "comment": "<Line Item Comment>"
+    }
+  ]
+}

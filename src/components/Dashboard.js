@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import HeaderLinks from './HeaderLinks';
-
+import axios from 'axios';
 import {
   Box,
   Container,
@@ -12,7 +12,6 @@ import RecentQueries from './RecentQueries';
 import { useSelector, useDispatch } from 'react-redux';
 import { setTableSelected, setSelectedCellData } from '../features/tpchSlice';
 import { useNavigate } from 'react-router-dom';
-import { setUsersRecentAction } from '../features/authSlice';
 
 const Dashboard = () => {
   const { isLoggedIn } = useSelector((state) => state.auth);
@@ -20,10 +19,31 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tableSelected, selectedCellData } = useSelector((state) => state.tpch);
+  const { userLoggedIn } = useSelector((state) => state.auth);
+  const [loadTable, setLoadTable] = useState(false);
+
   const { orders } = useSelector((state) => state.orders);
 
-  const [recentQueries, setRecentQueries] = useState(null);
+  const [recentQueries, setRecentQueries] = useState();
   const [selectedQueryData, setSelectedQueryData] = useState(null);
+
+  useEffect(() => {
+    getRecentQueries();
+  },[]);
+
+  const getRecentQueries = () => {
+    const url = `http://localhost:8000/get-queries?user_name=${userLoggedIn}`;
+
+    axios.get(url)
+      .then((response) => {
+        setRecentQueries(response.data.queries);
+        setLoadTable(true);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        // Handle errors here
+      });
+  }
 
   const getUniqueObjects = (originalArray, key) => {
     const uniqueKeys = new Set();
@@ -42,7 +62,12 @@ const Dashboard = () => {
     const getTableData = () => {
         switch(tableSelected) {
             case 'Orders':
-                return orders;
+                const orderData = orders.map(order => {
+                  const neworder = JSON.parse(JSON.stringify(order));
+                  neworder.lineitems['noOfLineItems'] = neworder.lineitems.length;
+                  return neworder;
+                });
+                return orderData;
             case 'Customer': 
                 const customerData = orders.map(order => order.customer_info);
                 return customerData;
@@ -110,8 +135,9 @@ const Dashboard = () => {
   };
 
   const setRecentActions = (data) => {
-    setRecentQueries(data);
-    dispatch(setUsersRecentAction(data));
+    if(data && data.length) {
+      setRecentQueries(data);
+    }
   }
 
   const selectedQuery = (query) => {
@@ -124,7 +150,7 @@ const Dashboard = () => {
     if (!isLoggedIn) {
       navigate('/');
     }
-  }, [tableData]);
+  }, [loadTable, tableData]);
 
   return (
     <>
@@ -145,11 +171,12 @@ const Dashboard = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {/* Tables */}
-            <Table tableSelected={tableSelected} 
+            {loadTable ? <Table tableSelected={tableSelected} 
               tableData={tableData} 
               setSelectedCol={openSelectedCell}
               setRecentActions={setRecentActions}
-              selectedQueryData={selectedQueryData}/>
+              selectedQueryData={selectedQueryData}
+              recentQueries={recentQueries}/> : <span>Loading...</span>}
             {/* Recent Queries */}
             <RecentQueries recentQueries={recentQueries} selectedQuery={selectedQuery}/>
           </Grid>

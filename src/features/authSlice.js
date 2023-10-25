@@ -8,10 +8,10 @@ export const setUsersRecentAction = createAsyncThunk(
         try {
             const userLoggedIn = getState().auth.userLoggedIn;
             const queryParams = {
-                user: userLoggedIn,
-                query: query
+                user_name: userLoggedIn,
+                query: query[query.length-1]
             };
-            const response = await axios.post('https://api.example.com/data', queryParams);
+            const response = await axios.post('http://localhost:8000/save-queries', queryParams);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message);

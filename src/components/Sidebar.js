@@ -83,16 +83,18 @@ const Sidebar = ({ drawerWidth }) => {
       <Divider />
       <List component="nav">
         {navbarItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton>
-              <Link to={item.path} style={{textDecoration: 'none', color: 'inherit'}}>
+          <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
+
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton>
                 <ListItemIcon>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText primary={item.text}/>
-              </Link>
-            </ListItemButton >
-          </ListItem>
+                <ListItemText primary={item.text} />
+              </ListItemButton >
+            </ListItem>
+          </Link>
+
         ))}
       </List>
     </Drawer>

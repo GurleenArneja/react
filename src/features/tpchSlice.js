@@ -17,7 +17,7 @@ const initialState = {
         Orders: [
             {field: 'order_key', header: 'Order Key', filterText: ''},
             {field: 'customer_key', header: 'Customer Key', nestedCol: 'customer_info', filterText: ''},
-            {field: 'lineitems', header: 'Line Items', nestedCol: 'lineitems', filterText: ''},
+            {field: 'noOfLineItems', header: 'Line Items', nestedCol: 'lineitems', filterText: ''},
             {field: 'orderstatus', header: 'Order Status', filterText: ''},
             {field: 'totalprice', header: 'Total Price', filterText: ''},
             {field: 'orderdate', header: 'Order Date', filterText: ''},
@@ -117,7 +117,7 @@ const tpchSlice = createSlice({
             state.selectedCellData = [];
         },
         setFilterTextField: (state, action) => {
-            state.columns[state.tableSelected] = action.payload;
+            state.columns[action.payload.tableSelected] = action.payload.updatedColumns;
         }
     }
 });
